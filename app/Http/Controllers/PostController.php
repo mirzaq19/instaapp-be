@@ -17,7 +17,7 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::with(['user','images'])->latest()->paginate(10);
+            $posts = Post::with(['user', 'images'])->latest()->paginate(10);
             $postResource = PostResource::collection($posts)->response()->getData(true);
             return $this->successWithData($postResource, 'Posts retrieved successfully.');
         } catch (Exception $e) {
@@ -88,6 +88,35 @@ class PostController extends Controller
             if (!$post) throw new NotFoundException("Post not found.");
             return $this->successWithData(new PostResource($post), 'Post retrieved successfully.');
         } catch (Exception $e) {
+            return $this->error($e);
+        }
+    }
+
+    public function destroy(int $id)
+    {
+        try {
+            DB::beginTransaction();
+            $post = Post::find($id);
+            if (!$post) throw new NotFoundException("Post not found.");
+
+            // Delete associated images
+            $post->images()->each(function ($image) {
+                $image->delete();
+            });
+
+            foreach ($post->images as $image) {
+                if (file_exists(public_path('storage/' . $image->image_path))) {
+                    unlink(public_path('storage/' . $image->image_path));
+                }
+            }
+
+            // Delete the post
+            $post->delete();
+
+            DB::commit();
+            return $this->success('Post deleted successfully.');
+        } catch (Exception $e) {
+            DB::rollBack();
             return $this->error($e);
         }
     }
