@@ -22,7 +22,14 @@ class LoginRequest extends BaseApiRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (filter_var($value, FILTER_VALIDATE_EMAIL) === false && !preg_match('/^[a-zA-Z0-9_]+$/', $value)) {
+                        $fail('The ' . $attribute . ' must be a valid email or username.');
+                    }
+                },
+            ],
             'password' => 'required|string|min:8',
         ];
     }

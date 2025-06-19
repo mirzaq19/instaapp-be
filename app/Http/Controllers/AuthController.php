@@ -20,6 +20,7 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'username' => $validated['username'],
                 'password' => Hash::make($validated['password']),
             ]);
 
@@ -34,7 +35,10 @@ class AuthController extends Controller
         try {
             $validated = $request->validated();
 
-            $user = User::where('email', $validated['email'])->first();
+            // Check if the user exists usine email or username
+            $user = User::where('email', $validated['email'])
+                ->orWhere('username', $validated['email'])
+                ->first();
 
             if (!$user) throw new AuthenticationException("User not registered");
 
