@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,6 +18,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/', [PostController::class, 'store']);
             Route::get('{id}', [PostController::class, 'show']);
             Route::delete('{id}', [PostController::class, 'destroy']);
+
+            Route::prefix('{postId}/comments')->group(function () {
+                Route::post('/', [CommentController::class, 'store']);
+            });
         });
     });
 });
