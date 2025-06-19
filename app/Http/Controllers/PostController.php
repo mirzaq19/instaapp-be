@@ -19,7 +19,15 @@ class PostController extends Controller
         try {
             $posts = Post::with(['user', 'images'])->latest()->paginate(10);
             $postResource = PostResource::collection($posts)->response()->getData(true);
-            return $this->successWithData($postResource, 'Posts retrieved successfully.');
+            return $this->successWithData([
+                'posts' => $postResource['data'],
+                'pagination' => [
+                    'current_page' => $posts->currentPage(),
+                    'last_page' => $posts->lastPage(),
+                    'per_page' => $posts->perPage(),
+                    'total' => $posts->total(),
+                ],
+            ], 'Posts retrieved successfully.');
         } catch (Exception $e) {
             return $this->error($e);
         }
@@ -86,7 +94,9 @@ class PostController extends Controller
         try {
             $post = Post::with(['user', 'images'])->find($id);
             if (!$post) throw new NotFoundException("Post not found.");
-            return $this->successWithData(new PostResource($post), 'Post retrieved successfully.');
+            return $this->successWithData([
+                'post' => new PostResource($post),
+            ], 'Post retrieved successfully.');
         } catch (Exception $e) {
             return $this->error($e);
         }
