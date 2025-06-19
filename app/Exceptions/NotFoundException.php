@@ -2,9 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class NotFoundException extends Exception
+class NotFoundException extends ClientException
 {
     protected string $name = 'NotFoundException';
 

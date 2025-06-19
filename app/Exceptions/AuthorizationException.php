@@ -2,9 +2,7 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class AuthorizationException extends Exception
+class AuthorizationException extends ClientException
 {
     protected string $name = 'AuthorizationException';
 

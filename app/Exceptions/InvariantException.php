@@ -2,8 +2,7 @@
 
 namespace App\Exceptions;
 
-
-class InvariantException extends InvariantException
+class InvariantException extends ClientException
 {
     protected string $name = 'InvariantException';
 
