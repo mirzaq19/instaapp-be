@@ -136,4 +136,27 @@ class PostController extends Controller
             return $this->error($e);
         }
     }
+
+    public function toggleLike(int $postId)
+    {
+        try {
+            $post = Post::find($postId);
+            if (!$post) throw new NotFoundException("Post not found.");
+
+            $userId = Auth::id();
+            $liked = $post->likes()->where('user_id', $userId)->exists();
+
+            if ($liked) {
+                // Unlike the post
+                $post->likes()->detach($userId);
+                return $this->success('Post unliked successfully.');
+            } else {
+                // Like the post
+                $post->likes()->attach($userId);
+                return $this->success('Post liked successfully.');
+            }
+        } catch (Exception $e) {
+            return $this->error($e);
+        }
+    }
 }

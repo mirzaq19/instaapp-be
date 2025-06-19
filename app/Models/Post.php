@@ -17,4 +17,10 @@ class Post extends Model
     {
         return $this->hasMany(PostImage::class);
     }
+
+    public function likes()
+    {
+        return $this->belongsToMany(User::class, 'post_like', 'post_id', 'user_id');
+    }
+
 }

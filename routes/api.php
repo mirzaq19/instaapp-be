@@ -24,6 +24,8 @@ Route::prefix('v1')->group(function () {
                 Route::post('/', [CommentController::class, 'store']);
                 Route::delete('{commentId}', [CommentController::class, 'destroy']);
             });
+
+            Route::post('{postId}/like', [PostController::class, 'toggleLike']);
         });
     });
 });
