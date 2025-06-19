@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\InvariantException;
 use App\Http\Requests\Post\PostStoreRequest;
+use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use App\Models\PostImage;
 use Exception;
@@ -12,6 +13,17 @@ use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
+    public function index()
+    {
+        try {
+            $posts = Post::with(['user','images'])->latest()->paginate(10);
+            $postResource = PostResource::collection($posts)->response()->getData(true);
+            return $this->successWithData($postResource, 'Posts retrieved successfully.');
+        } catch (Exception $e) {
+            return $this->error($e);
+        }
+    }
+
     public function store(PostStoreRequest $request)
     {
         try {
