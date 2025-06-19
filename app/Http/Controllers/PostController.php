@@ -18,7 +18,17 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::with(['user', 'images'])->latest()->paginate(10);
+            $posts = Post::withCount(['likes'])->with(['user', 'images'])->latest()->paginate(10);
+
+            if (Auth::check()) {
+                // If the user is authenticated, load the likes for each post
+                $posts->loadCount([
+                    'likes as is_liked' => function ($query) {
+                        $query->where('user_id', Auth::id());
+                    }
+                ]);
+            }
+
             $postResource = PostResource::collection($posts)->response()->getData(true);
             return $this->successWithData([
                 'posts' => $postResource['data'],
@@ -93,8 +103,18 @@ class PostController extends Controller
     public function show(int $id)
     {
         try {
-            $post = Post::with(['user', 'images'])->find($id);
+            $post = Post::withCount(['likes'])->with(['user', 'images'])->find($id);
             if (!$post) throw new NotFoundException("Post not found.");
+
+            // If the user is authenticated, load the likes for the post
+            if (Auth::check()) {
+                $post->loadCount([
+                    'likes as is_liked' => function ($query) {
+                        $query->where('user_id', Auth::id());
+                    }
+                ]);
+            }
+
             return $this->successWithData([
                 'post' => new PostResource($post),
             ], 'Post retrieved successfully.');

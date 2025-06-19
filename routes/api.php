@@ -14,9 +14,11 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('posts')->group(function () {
-            Route::get('/', [PostController::class, 'index'])->withoutMiddleware('auth:sanctum');
+            Route::middleware('optional_auth')->withoutMiddleware('auth:sanctum')->group(function () {
+                Route::get('/', [PostController::class, 'index']);
+                Route::get('{id}', [PostController::class, 'show']);
+            });
             Route::post('/', [PostController::class, 'store']);
-            Route::get('{id}', [PostController::class, 'show'])->withoutMiddleware('auth:sanctum');
             Route::delete('{id}', [PostController::class, 'destroy']);
 
             Route::prefix('{postId}/comments')->group(function () {
