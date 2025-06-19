@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AuthorizationException;
 use App\Exceptions\InvariantException;
 use App\Exceptions\NotFoundException;
 use App\Http\Requests\Post\PostStoreRequest;
@@ -108,6 +109,11 @@ class PostController extends Controller
             DB::beginTransaction();
             $post = Post::find($id);
             if (!$post) throw new NotFoundException("Post not found.");
+
+            // Check if the authenticated user is the owner of the post
+            if ($post->user_id !== Auth::id()) {
+                throw new AuthorizationException("You are not authorized to delete this post.");
+            }
 
             // Delete associated images
             $post->images()->each(function ($image) {
