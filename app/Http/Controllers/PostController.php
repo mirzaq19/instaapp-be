@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Exceptions\InvariantException;
+use App\Http\Requests\Post\PostStoreRequest;
+use App\Models\Post;
+use App\Models\PostImage;
+use Exception;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
+class PostController extends Controller
+{
+    public function store(PostStoreRequest $request)
+    {
+        try {
+            DB::beginTransaction();
+            $userId = Auth::id();
+            $post = Post::create([
+                'user_id' => $userId,
+                'content' => $request->input('content'),
+            ]);
+
+            if ($request->hasFile('images')) {
+                /* Validate and store images using Storage facade
+                    image filename using format: {user_id}_{post_id}_{timestamp}_{order}.extension
+                    where order is the index of the image in the array
+                    e.g., 1_123_20230619135700_0.jpg
+                */
+                $images = $request->file('images');
+                $imageData = [];
+                $currentTime = now();
+                $imagePath = 'posts/' . $post->id;
+                foreach ($images as $index => $image) {
+                    $imageName = sprintf(
+                        '%d_%d_%s_%d.%s',
+                        $userId,
+                        $post->id,
+                        $currentTime->timestamp,
+                        $index,
+                        $image->getClientOriginalExtension()
+                    );
+                    $image->storeAs($imagePath, $imageName, 'public');
+
+                    $imageData[] = [
+                        'post_id' => $post->id,
+                        'image_path' => $imagePath . '/' . $imageName,
+                        'image_name' => $imageName,
+                        'image_type' => $image->getClientMimeType(),
+                        'created_at' => $currentTime,
+                        'updated_at' => $currentTime,
+                    ];
+                }
+
+                if (empty($imageData)) throw new InvariantException("Failed to store images for the post.");
+
+                PostImage::insert($imageData);
+            }
+
+            DB::commit();
+            return $this->successWithData([
+                'post_id' => $post->id,
+            ], 'Post created successfully with images.', 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return $this->error($e);
+        }
+    }
+}
