@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
@@ -47,6 +48,18 @@ class AuthController extends Controller
             return $this->successWithData([
                 'token' => $token,
             ], 'User logged in successfully');
+        } catch (Exception $e) {
+            return $this->error($e);
+        }
+    }
+
+    public function me() {
+        try {
+            $user = Auth::user();
+            if (!$user) {
+                throw new AuthenticationException("User not authenticated or session expired");
+            }
+            return $this->successWithData($user, 'User retrieved successfully');
         } catch (Exception $e) {
             return $this->error($e);
         }
