@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvariantException;
+use App\Exceptions\NotFoundException;
 use App\Http\Requests\Post\PostStoreRequest;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
@@ -76,6 +77,17 @@ class PostController extends Controller
             ], 'Post created successfully with images.', 201);
         } catch (Exception $e) {
             DB::rollBack();
+            return $this->error($e);
+        }
+    }
+
+    public function show(int $id)
+    {
+        try {
+            $post = Post::with(['user', 'images'])->find($id);
+            if (!$post) throw new NotFoundException("Post not found.");
+            return $this->successWithData(new PostResource($post), 'Post retrieved successfully.');
+        } catch (Exception $e) {
             return $this->error($e);
         }
     }
