@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AuthenticationException;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Exception;
@@ -21,6 +23,30 @@ class AuthController extends Controller
             ]);
 
             return $this->successWithData($user, 'User registered successfully', 201);
+        } catch (Exception $e) {
+            return $this->error($e);
+        }
+    }
+
+    public function login(LoginRequest $request)
+    {
+        try {
+            $validated = $request->validated();
+
+            $user = User::where('email', $validated['email'])->first();
+
+            if (!$user) throw new AuthenticationException("User not registered");
+
+            if (!Hash::check($validated['password'], $user->password)) {
+                throw new AuthenticationException("Invalid credentials");
+            }
+
+            // Optionally, you can generate a token or session here
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return $this->successWithData([
+                'token' => $token,
+            ], 'User logged in successfully');
         } catch (Exception $e) {
             return $this->error($e);
         }
