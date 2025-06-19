@@ -14,13 +14,13 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('posts')->group(function () {
-            Route::get('/', [PostController::class, 'index']);
+            Route::get('/', [PostController::class, 'index'])->withoutMiddleware('auth:sanctum');
             Route::post('/', [PostController::class, 'store']);
-            Route::get('{id}', [PostController::class, 'show']);
+            Route::get('{id}', [PostController::class, 'show'])->withoutMiddleware('auth:sanctum');
             Route::delete('{id}', [PostController::class, 'destroy']);
 
             Route::prefix('{postId}/comments')->group(function () {
-                Route::get('/', [CommentController::class, 'index']);
+                Route::get('/', [CommentController::class, 'index'])->withoutMiddleware('auth:sanctum');
                 Route::post('/', [CommentController::class, 'store']);
                 Route::delete('{commentId}', [CommentController::class, 'destroy']);
             });
