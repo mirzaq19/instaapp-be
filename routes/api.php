@@ -20,6 +20,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('{id}', [PostController::class, 'destroy']);
 
             Route::prefix('{postId}/comments')->group(function () {
+                Route::get('/', [CommentController::class, 'index']);
                 Route::post('/', [CommentController::class, 'store']);
             });
         });
