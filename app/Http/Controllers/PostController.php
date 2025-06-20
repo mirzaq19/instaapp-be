@@ -18,7 +18,7 @@ class PostController extends Controller
     public function index()
     {
         try {
-            $posts = Post::withCount(['likes'])->with(['user', 'images'])->latest()->paginate(10);
+            $posts = Post::withCount(['likes', 'comments'])->with(['user', 'images'])->latest()->paginate(10);
 
             if (Auth::check()) {
                 // If the user is authenticated, load the likes for each post
@@ -103,7 +103,7 @@ class PostController extends Controller
     public function show(int $id)
     {
         try {
-            $post = Post::withCount(['likes'])->with(['user', 'images'])->find($id);
+            $post = Post::withCount(['likes', 'comments'])->with(['user', 'images'])->find($id);
             if (!$post) throw new NotFoundException("Post not found.");
 
             // If the user is authenticated, load the likes for the post
