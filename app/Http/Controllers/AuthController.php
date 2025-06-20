@@ -65,7 +65,9 @@ class AuthController extends Controller
             if (!$user) {
                 throw new AuthenticationException("User not authenticated or session expired");
             }
-            return $this->successWithData($user, 'User retrieved successfully');
+            return $this->successWithData([
+                'user' => $user,
+            ], 'User retrieved successfully');
         } catch (Exception $e) {
             return $this->error($e);
         }
