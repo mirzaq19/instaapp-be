@@ -20,7 +20,7 @@ class CommentController extends Controller
             if (!$post) throw new NotFoundException('Post not found.');
 
             $comments = Comment::where('post_id', $postId)
-                ->with('user:id,name')
+                ->with('user:id,name,username')
                 ->latest()
                 ->get();
 
