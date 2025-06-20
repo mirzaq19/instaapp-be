@@ -24,7 +24,9 @@ class AuthController extends Controller
                 'password' => Hash::make($validated['password']),
             ]);
 
-            return $this->successWithData($user, 'User registered successfully', 201);
+            return $this->successWithData([
+                'user' => $user,
+            ], 'User registered successfully', 201);
         } catch (Exception $e) {
             return $this->error($e);
         }
