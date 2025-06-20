@@ -31,13 +31,7 @@ class PostController extends Controller
 
             $postResource = PostResource::collection($posts)->response()->getData(true);
             return $this->successWithData([
-                'posts' => $postResource['data'],
-                'pagination' => [
-                    'current_page' => $posts->currentPage(),
-                    'last_page' => $posts->lastPage(),
-                    'per_page' => $posts->perPage(),
-                    'total' => $posts->total(),
-                ],
+                'posts' => $postResource,
             ], 'Posts retrieved successfully.');
         } catch (Exception $e) {
             return $this->error($e);
